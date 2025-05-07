@@ -8,7 +8,22 @@ require("dotenv").config();
 const app = express();
 
 // Middleware to parse JSON bodies
-app.use(cors());
+const allowedOrigins = ["http://localhost:3000", "http://127.0.0.1:5500"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+//app.options("*", cors());
+
 app.use(express.json());
 
 // Use user routes
