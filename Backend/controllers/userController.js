@@ -47,41 +47,51 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  //   const { email, password } = req.body;
-  //   try {
-  //     const user = await User.findOne({ where: { email } });
-  //     console.log("User from database:", user);
-  //     if (!user) {
-  //       return res.status(404).json({ message: "User Not Found" });
-  //     }
-  //     //Decrypting the password(password validation)
-  //     const isPasswordValid = await bcrypt.compare(password, user.password);
-  //     if (!isPasswordValid) {
-  //       return res.status(401).json({ message: "User Not Authorized" });
-  //     }
-  //     // Generate a JWT
-  //     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-  //       expiresIn: "1h",
-  //     });
-  //     console.log("Token generated", token);
-  //     res.status(200).json({
-  //       message: "Login successful",
-  //       token,
-  //       user: {
-  //         id: user.id,
-  //         username: user.username,
-  //         email: user.email,
-  //         phone: user.phone,
-  //         createdAt: user.created_at,
-  //         updatedAt: user.updated_at,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error during login:", error);
-  //     res
-  //       .status(500)
-  //       .json({ message: "Error during login", error: error.message });
-  //   }
+  const { email, password } = req.body;
+
+  // Input validation
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Set cookie with token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure in production
+      sameSite: "strict",
+      maxAge: 3600000, // 1 hour
+    });
+
+    // Respond with success (omit sensitive data)
+    const { password: _, ...userData } = user.get({ plain: true });
+    res.status(200).json({
+      message: "Login successful",
+      user: userData,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 module.exports = { signup, login };

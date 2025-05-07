@@ -1,6 +1,8 @@
 const express = require("express");
 const sequelize = require("./config/db");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
 const userRoutes = require("./routes/userRoutes");
 
 require("dotenv").config();
@@ -25,6 +27,7 @@ app.use(
 //app.options("*", cors());
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Use user routes
 app.use("/user", userRoutes);
