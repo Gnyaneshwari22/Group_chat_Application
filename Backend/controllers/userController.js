@@ -14,7 +14,9 @@ const signup = async (req, res) => {
     // Check if user exists (optimized query)
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({ message: "Email already in use." }); // 409 = Conflict
+      return res
+        .status(409)
+        .json({ message: "User already exists, Please Login" }); // 409 = Conflict
     }
 
     // Hash password (with salt rounds)
