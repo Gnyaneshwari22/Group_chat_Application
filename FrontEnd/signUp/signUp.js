@@ -13,7 +13,7 @@ const handleSignup = async (payload) => {
     });
 
     // Redirect to login page
-    // window.location.href = "../login/login.html";
+    window.location.href = "../login/login.html";
   } catch (error) {
     console.error("Signup failed:", error.response?.data || error.message);
 
