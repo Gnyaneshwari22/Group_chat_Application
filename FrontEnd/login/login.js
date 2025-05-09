@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5500";
+const API_URL = "http://localhost:3000";
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -7,16 +7,12 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   try {
-    const response = await axios.post(
-      `${API_URL}/user/login`,
-      {
-        email,
-        password,
-      },
-      {
-        withCredentials: true, // Important for cookies
-      }
-    );
+    const response = await axios.post(`${API_URL}/user/login`, {
+      email,
+      password,
+    });
+    localStorage.setItem("token", response.data.token); // Store token in local storage
+    console.log("Login successful:", response.data);
 
     // Handle successful login
     await Swal.fire({
@@ -28,7 +24,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     });
 
     // Redirect to dashboard or chat page
-    window.location.href = "../chat/chat.html";
+    // window.location.href = "../chat/chat.html";
   } catch (error) {
     console.error("Login error:", error);
 

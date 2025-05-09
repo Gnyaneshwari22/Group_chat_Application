@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const [messages, onlineUsers] = await Promise.all([
         axios.get(`${API_BASE_URL}/chat/messages`),
-        axios.get(`${API_BASE_URL}/chat/online-users`),
+        // axios.get(`${API_BASE_URL}/chat/online-users`),
       ]);
 
       messages.data.forEach((msg) => addMessageToUI(formatMessage(msg)));

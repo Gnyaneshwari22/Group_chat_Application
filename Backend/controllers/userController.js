@@ -74,21 +74,17 @@ const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    // Set cookie with token
-    res.cookie("token", token, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === "production", // Use secure in production
-      // sameSite: "strict",
-      secure: false, // or `process.env.NODE_ENV === "production"`
-      sameSite: "lax",
-      maxAge: 3600000, // 1 hour
-    });
-
-    // Respond with success (omit sensitive data)
-    const { password: _, ...userData } = user.get({ plain: true });
     res.status(200).json({
       message: "Login successful",
-      user: userData,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+      },
     });
   } catch (error) {
     console.error("Login error:", error);

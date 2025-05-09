@@ -4,7 +4,7 @@ const chatController = require("../controllers/chatController");
 const { authenticate } = require("../middlewares/authMiddleware");
 
 //post message
-router.post("/postmessages", authenticateUser, chatController.postMessage);
+router.post("/postmessages", authenticate, chatController.postMessage);
 
 // Get all online users
 //router.get("/online-users", authenticate, chatController.getOnlineUsers);
