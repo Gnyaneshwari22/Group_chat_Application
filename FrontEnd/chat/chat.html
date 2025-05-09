@@ -92,7 +92,15 @@
     </div>
 
     <!-- JavaScript -->
+    <!-- Add Socket.IO client library before your chat.js -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- Add Axios before your chat.js -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Bootstrap Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Your chat.js should come after all dependencies -->
     <script src="chat.js"></script>
   </body>
 </html>

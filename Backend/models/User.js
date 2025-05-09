@@ -43,4 +43,12 @@ const User = sequelize.define(
   }
 );
 
+// Add associations
+User.associate = function (models) {
+  User.hasMany(models.Message, {
+    foreignKey: "sender_id",
+    as: "messages",
+  });
+};
+
 module.exports = User;

@@ -77,8 +77,10 @@ const login = async (req, res) => {
     // Set cookie with token
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Use secure in production
-      sameSite: "strict",
+      // secure: process.env.NODE_ENV === "production", // Use secure in production
+      // sameSite: "strict",
+      secure: false, // or `process.env.NODE_ENV === "production"`
+      sameSite: "lax",
       maxAge: 3600000, // 1 hour
     });
 
@@ -94,4 +96,34 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login };
+// Add this new controller method
+const verifyUser = async (req, res) => {
+  try {
+    // The user is already authenticated by the middleware
+    // Just fetch their complete details from database
+    console.log("User ID from request:*********************", req.user.userId); // Debugging line
+    const user = await User.findByPk(req.user.userId, {
+      attributes: ["id", "username", "email"], // Don't return password
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "User verified",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Error verifying user:", error);
+    res.status(500).json({ message: "Error verifying user" });
+  }
+};
+
+// ... your existing controller methods ...
+
+module.exports = { signup, login, verifyUser };
