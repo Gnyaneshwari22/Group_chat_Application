@@ -10,6 +10,6 @@ router.post("/postmessages", authenticateUser, chatController.postMessage);
 //router.get("/online-users", authenticate, chatController.getOnlineUsers);
 
 // Get chat history
-//router.get("/getmessages", authenticate, chatController.getMessages);
+router.get("/getmessages", authenticate, chatController.getMessages);
 
 module.exports = router;
