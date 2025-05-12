@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const groupRoutes = require("./routes/groupRoutes");
 
 const { initSocket } = require("./socket/socket");
 
@@ -60,6 +61,7 @@ app.use(cookieParser());
 // Use user routes
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
+app.use(groupRoutes);
 
 // Sync database and start server
 sequelize

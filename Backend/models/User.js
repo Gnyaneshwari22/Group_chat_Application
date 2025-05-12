@@ -8,7 +8,7 @@ const User = sequelize.define(
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: false,
+      unique: true, // changed to true
     },
     email: {
       type: DataTypes.STRING,
@@ -23,7 +23,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-
+    status: {
+      type: DataTypes.ENUM("online", "offline"),
+      defaultValue: "offline",
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
@@ -37,18 +40,11 @@ const User = sequelize.define(
     },
   },
   {
-    timestamps: true, // Ensures Sequelize manages createdAt and updatedAt.
-    createdAt: "created_at", // Maps Sequelize's createdAt to created_at
+    timestamps: true,
+    createdAt: "created_at",
     updatedAt: "updated_at",
+    tableName: "users",
   }
 );
-
-// Add associations
-User.associate = function (models) {
-  User.hasMany(models.Message, {
-    foreignKey: "sender_id",
-    as: "messages",
-  });
-};
 
 module.exports = User;

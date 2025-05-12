@@ -24,7 +24,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     });
 
     // Redirect to dashboard or chat page
-    // window.location.href = "../chat/chat.html";
+    window.location.href = "../chat/chat.html";
   } catch (error) {
     console.error("Login error:", error);
 

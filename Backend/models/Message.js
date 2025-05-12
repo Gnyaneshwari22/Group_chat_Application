@@ -13,7 +13,7 @@ const Message = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Users", // This references the User table
+        model: "users",
         key: "id",
       },
     },
@@ -22,18 +22,28 @@ const Message = sequelize.define(
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       allowNull: false,
     },
+    group_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "groups",
+        key: "id",
+      },
+    },
   },
   {
     timestamps: true,
     createdAt: "created_at",
-    updatedAt: false, // We don't need updatedAt for messages
+    updatedAt: false,
+    tableName: "messages",
   }
 );
 
+// Define associations
 Message.associate = function (models) {
   Message.belongsTo(models.User, {
     foreignKey: "sender_id",
-    as: "sender", // <-- must match the 'as' used in include
+    as: "sender",
   });
 };
 

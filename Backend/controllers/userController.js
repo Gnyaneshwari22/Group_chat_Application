@@ -67,6 +67,8 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // In your login controller
+    await User.update({ status: "online" }, { where: { id: user.id } });
     // Create JWT token
     const token = jwt.sign(
       { userId: user.id, email: user.email },
@@ -93,33 +95,18 @@ const login = async (req, res) => {
 };
 
 // Add this new controller method
-const verifyUser = async (req, res) => {
+const getMe = async (req, res) => {
   try {
-    // The user is already authenticated by the middleware
-    // Just fetch their complete details from database
-    console.log("User ID from request:*********************", req.user.userId); // Debugging line
-    const user = await User.findByPk(req.user.userId, {
-      attributes: ["id", "username", "email"], // Don't return password
+    const user = await User.findByPk(req.user.id, {
+      attributes: ["id", "username", "email", "phone"],
     });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json({
-      message: "User verified",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-    });
+    res.json(user);
   } catch (error) {
-    console.error("Error verifying user:", error);
-    res.status(500).json({ message: "Error verifying user" });
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // ... your existing controller methods ...
 
-module.exports = { signup, login, verifyUser };
+module.exports = { signup, login, getMe };

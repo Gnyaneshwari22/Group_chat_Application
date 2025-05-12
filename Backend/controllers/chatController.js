@@ -1,79 +1,96 @@
-const { Message, User } = require("../models");
+const { User, Message } = require("../models");
+const { Op } = require("sequelize");
 
-const { getIO } = require("../socket/socket");
+exports.postMessage = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const sender_id = req.user.userId; // Make sure this is coming from your auth middleware
 
-const chatController = {
-  getOnlineUsers: async (req, res) => {
-    try {
-      const io = getIO();
-      const sockets = await io.fetchSockets();
-
-      const onlineUserIds = sockets.map((socket) => socket.user.id);
-      const onlineUsers = await User.findAll({
-        where: { id: onlineUserIds },
-        attributes: ["id", "username", "email"],
-      });
-
-      res.json(onlineUsers);
-    } catch (error) {
-      console.error("Error fetching online users:", error);
-      res.status(500).json({ message: "Error fetching online users" });
+    if (!content) {
+      return res.status(400).json({ error: "Message content is required" });
     }
-  },
 
-  getMessages: async (req, res) => {
-    try {
-      const messages = await Message.findAll({
-        include: [
-          {
-            model: User,
-            as: "sender",
-            attributes: ["id", "username"],
-          },
-        ],
-        order: [["created_at", "ASC"]],
-        limit: 50, // Get last 50 messages
-      });
+    // Debug log to check the sender_id
+    console.log("Creating message with sender_id:", sender_id);
 
-      res.json(messages);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      res.status(500).json({ message: "Error fetching messages" });
-    }
-  },
+    const message = await Message.create({
+      content,
+      sender_id, // Make sure this is not null
+    });
 
-  // controllers/chatController.js
+    // Include sender details in the response
+    const messageWithSender = await Message.findByPk(message.id, {
+      include: [
+        {
+          model: User,
+          as: "sender",
+          attributes: ["id", "username"],
+        },
+      ],
+    });
 
-  // controllers/chatController.js
-
-  postMessage: async (req, res) => {
-    try {
-      const { content } = req.body;
-      const senderId = req.user.id;
-
-      if (!content) {
-        return res.status(400).json({ error: "Message content is required." });
-      }
-
-      const newMessage = await Message.create({
-        content,
-        senderId,
-      });
-
-      // Include sender info for UI
-      const messageWithSender = await Message.findByPk(newMessage.id, {
-        include: [{ model: User, attributes: ["id", "username"] }],
-      });
-
-      // Emit message to all clients (no group room needed)
-      req.app.get("io").emit("new-message", messageWithSender);
-
-      res.status(201).json(messageWithSender);
-    } catch (error) {
-      console.error("Error posting message:", error);
-      res.status(500).json({ error: "Internal server error." });
-    }
-  },
+    res.status(201).json(messageWithSender);
+  } catch (error) {
+    console.error("Error posting message:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      details: error.errors
+        ? error.errors.map((e) => e.message)
+        : error.message,
+    });
+  }
 };
 
-module.exports = chatController;
+exports.getMessages = async (req, res) => {
+  try {
+    const lastMessageId = parseInt(req.query.lastMessageId) || 0;
+
+    const messages = await Message.findAll({
+      where: {
+        id: { [Op.gt]: lastMessageId },
+      },
+      include: [
+        {
+          model: User,
+          as: "sender",
+          attributes: ["id", "username"],
+        },
+      ],
+      order: [["created_at", "ASC"]],
+    });
+
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    // In your getAllUsers controller
+    const users = await User.findAll({
+      where: { status: "online" },
+      attributes: ["id", "username"],
+    });
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+exports.logout = async (req, res) => {
+  try {
+    // Mark user as offline in DB
+    await User.update(
+      { status: "offline" },
+      { where: { id: req.user.userId } }
+    );
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

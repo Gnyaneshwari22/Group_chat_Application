@@ -1,20 +1,32 @@
-const Sequelize = require("sequelize");
-const sequelize = require("../config/db"); // ✅ Import the configured instance
+const User = require("./User");
+const Message = require("./Message");
+const Group = require("./Group");
+const GroupUser = require("./GroupUser");
 
-const db = {};
+// User <-> Message
+User.hasMany(Message, { foreignKey: "sender_id", as: "messages" });
+Message.belongsTo(User, { foreignKey: "sender_id", as: "sender" });
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
-// Import models
-db.User = require("./User");
-db.Message = require("./Message");
-
-// Call associate methods (if defined)
-Object.values(db).forEach((model) => {
-  if (model.associate) {
-    model.associate(db);
-  }
+// Group <-> User (many-to-many)
+User.belongsToMany(Group, {
+  through: GroupUser,
+  foreignKey: "user_id",
+  as: "groups",
 });
 
-module.exports = db;
+Group.belongsToMany(User, {
+  through: GroupUser,
+  foreignKey: "group_id",
+  as: "members",
+});
+
+// Group <-> Message (one-to-many)
+Group.hasMany(Message, { foreignKey: "group_id", as: "messages" });
+Message.belongsTo(Group, { foreignKey: "group_id", as: "group" });
+
+module.exports = {
+  User,
+  Message,
+  Group,
+  GroupUser,
+};
