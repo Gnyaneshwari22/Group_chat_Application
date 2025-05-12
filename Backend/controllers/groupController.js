@@ -1,5 +1,6 @@
 const { Group, GroupUser, Message, User } = require("../models");
 
+//Creating group
 exports.createGroup = async (req, res) => {
   try {
     const { name, memberIds } = req.body;
@@ -18,6 +19,7 @@ exports.createGroup = async (req, res) => {
   }
 };
 
+//Fetching user Groups
 exports.getUserGroups = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
@@ -30,6 +32,7 @@ exports.getUserGroups = async (req, res) => {
   }
 };
 
+//sending messages in the groups
 exports.sendMessageToGroup = async (req, res) => {
   try {
     const { content } = req.body;
@@ -48,6 +51,7 @@ exports.sendMessageToGroup = async (req, res) => {
   }
 };
 
+//getting the mesages of the group
 exports.getGroupMessages = async (req, res) => {
   try {
     const { groupId } = req.params;

@@ -3,13 +3,11 @@ const router = express.Router();
 const chatController = require("../controllers/chatController");
 const { authenticate } = require("../middlewares/authMiddleware");
 
-//post message
-router.post("/postmessages", authenticate, chatController.postMessage);
-
-// Get all online users
-//router.get("/online-users", authenticate, chatController.getOnlineUsers);
-
-// Get chat history
-router.get("/getmessages", authenticate, chatController.getMessages);
+// Protected routes
+router.post("/message", authenticate, chatController.postMessage);
+router.get("/messages", authenticate, chatController.getMessages);
+router.get("/users", authenticate, chatController.getAllUsers);
+// Add this with your other chat routes
+router.post("/logout", authenticate, chatController.logout);
 
 module.exports = router;
