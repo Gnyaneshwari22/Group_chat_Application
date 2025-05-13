@@ -22,7 +22,7 @@ exports.createGroup = async (req, res) => {
 //Fetching user Groups
 exports.getUserGroups = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id, {
+    const user = await User.findByPk(req.user.userId, {
       include: { model: Group, as: "groups" },
     });
 

@@ -3,6 +3,7 @@ const { authenticateSocket } = require("../middlewares/socketAuth");
 
 let io;
 
+//initiating the socket
 const initSocket = (server) => {
   io = socketIO(server, {
     cors: {

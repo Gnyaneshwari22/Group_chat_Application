@@ -38,7 +38,7 @@ module.exports = (io) => {
       }
     });
 
-    // Handle disconnection
+    // Handle disconnection of thesockets
     socket.on("disconnect", () => {
       console.log(`User disconnected: ${socket.user.username}`);
       io.emit("user-disconnected", {

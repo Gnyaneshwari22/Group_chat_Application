@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const socket = io("http://localhost:3000");
+
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
@@ -13,31 +15,73 @@ document.addEventListener("DOMContentLoaded", function () {
   let selectedGroupId = null;
   let lastMessageId = 0;
 
+  const name = prompt("What is your name?");
+  appendMessage("You joined");
+  socket.emit("new-user", name);
+
+  socket.on("chat-message", (data) => {
+    appendMessage(`${data.name}: ${data.message}`);
+  });
+
+  socket.on("user-connected", (name) => {
+    appendMessage(`${name} connected`);
+  });
+
+  socket.on("user-disconnected", (name) => {
+    appendMessage(`${name} disconnected`);
+  });
+
   // Initial load
   if (!token) return (window.location.href = "../login/login.html");
   fetchGroups();
 
   // ===================== GROUPS ======================
 
-  function fetchGroups() {
-    axios
-      .get("http://localhost:3000/groups", {
+  // function fetchGroups() {
+  //   axios
+  //     .get("http://localhost:3000/groups", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     })
+  //     .then((res) => {
+  //       console.log(res.data);
+  //     })
+  //     .then((res) => {
+  //       let groups = res.data.groups;
+  //       groupList.innerHTML = "";
+  //       groups.forEach((group) => {
+  //         const li = document.createElement("li");
+  //         li.className = "list-group-item list-group-item-action";
+  //         li.textContent = group.name;
+  //         li.onclick = () => selectGroup(group);
+  //         groupList.appendChild(li);
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //       Swal.fire("Error", "Could not fetch groups", "error");
+  //     });
+  // }
+  async function fetchGroups() {
+    try {
+      const res = await axios.get("http://localhost:3000/groups", {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        groupList.innerHTML = "";
-        res.data.groups.forEach((group) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item list-group-item-action";
-          li.textContent = group.name;
-          li.onclick = () => selectGroup(group);
-          groupList.appendChild(li);
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        Swal.fire("Error", "Could not fetch groups", "error");
       });
+
+      const groups = res.data.groups;
+      console.log(res.data);
+
+      groupList.innerHTML = "";
+      groups.forEach((group) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item list-group-item-action";
+        li.textContent = group.name;
+        li.onclick = () => selectGroup(group);
+        groupList.appendChild(li);
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Could not fetch groups", "error");
+    }
   }
 
   function selectGroup(group) {
@@ -153,5 +197,5 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Poll messages every 2 seconds
-  setInterval(fetchMessages, 2000);
+  //setInterval(fetchMessages, 2000);
 });
