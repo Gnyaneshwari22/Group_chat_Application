@@ -70,3 +70,19 @@ exports.getGroupMessages = async (req, res) => {
       .json({ success: false, message: "Fetching messages failed" });
   }
 };
+
+const uploadFile = async (req, res) => {
+  try {
+    const fileUrl = req.file.location;
+
+    // Optional: Save this file URL as a chat message in DB
+    // await ChatMessage.create({ message: fileUrl, isFile: true, ... });
+
+    res.status(200).json({ message: "File uploaded successfully", fileUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Upload failed" });
+  }
+};
+
+module.exports = { uploadFile };

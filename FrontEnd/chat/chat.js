@@ -198,4 +198,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Poll messages every 2 seconds
   //setInterval(fetchMessages, 2000);
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      const file = document.getElementById("fileInput").files[0];
+      formData.append("file", file);
+
+      try {
+        const res = await axios.post("/group/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        const fileUrl = res.data.fileUrl;
+        const fileExt = fileUrl.split(".").pop();
+
+        let element;
+        if (["jpg", "png", "jpeg", "gif"].includes(fileExt)) {
+          element = `<img src="${fileUrl}" width="200" />`;
+        } else if (["mp4", "webm"].includes(fileExt)) {
+          element = `<video controls width="250"><source src="${fileUrl}" /></video>`;
+        } else {
+          element = `<a href="${fileUrl}" target="_blank">Download File</a>`;
+        }
+
+        document.getElementById(
+          "chatMessages"
+        ).innerHTML += `<div>${element}</div>`;
+      } catch (error) {
+        alert("Upload failed");
+        console.error(error);
+      }
+    });
 });
