@@ -2,7 +2,8 @@ const express = require("express");
 const sequelize = require("./config/db");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
+const cron = require("node-cron");
+const archiveOldChats = require("./cron/archiveOldChats");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const groupRoutes = require("./routes/groupRoutes");
@@ -62,6 +63,11 @@ app.use(cookieParser());
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
 app.use(groupRoutes);
+
+cron.schedule("0 2 * * *", () => {
+  console.log("⏰ Running daily archive job...");
+  archiveOldChats();
+});
 
 // Sync database and start server
 sequelize
